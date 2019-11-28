@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using System.Windows.Documents;
 using JpGoods.Bean;
 using JpGoods.Libs;
 using JpGoods.Model;
@@ -94,6 +92,38 @@ namespace JpGoods.Api
             return res;
         }
 
+        /// <summary>
+        /// 获取品牌列表
+        /// </summary>
+        /// <returns></returns>
+        public async Task<HttpRes> GetShopItemList(User user, string shopId, int limit = 1000)
+        {
+            var g = new G
+            {
+                PageId = "MYM_SH001", SessionId = user.SessionId,
+                MasterUpdate = user.MasterUpdate, Token = user.Token,
+                Version = JpUtil.APP_VERSION
+            };
+            var body = new RequestBody {G = g};
+            var cc = new Dictionary<string, object>();
+            var opts = new Dictionary<string, object>
+            {
+                {"member_id", shopId},
+                {"offset", 0},
+                {"limit", limit},
+            };
+            var list = new List<CItem>
+            {
+                new CItem
+                {
+                    Method = Methods.GetShopItemList,
+                    Option = opts
+                },
+            };
+            cc.Add("Item", list);
+            body.C = cc;
+            return await ApiRequest(body);
+        }
 
         /// <summary>
         /// 获取品牌列表
@@ -186,8 +216,65 @@ namespace JpGoods.Api
         {
         }
 
-        public void AddGoods()
+        /// <summary>
+        /// 添加商品或者修改商品
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="bean"></param>
+        /// <returns></returns>
+        public async Task<HttpRes> SetItem(User user, SaleBean bean)
         {
+            var g = new G
+            {
+                PageId = "SEL_EX001", SessionId = user.SessionId,
+                MasterUpdate = user.MasterUpdate, Token = user.Token,
+                Version = JpUtil.APP_VERSION
+            };
+            var body = new RequestBody {G = g};
+            var cc = new Dictionary<string, object>();
+            var list = new List<CItem>
+            {
+                new CItem
+                {
+                    Method = Methods.SetItem2,
+                    Option = bean
+                },
+            };
+            cc.Add("Sales", list);
+            body.C = cc;
+            return await ApiRequest(body);
+        }
+
+        /// <summary>
+        /// 批量修改
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="beans"></param>
+        /// <returns></returns>
+        public async Task<HttpRes> SetItems(User user, SaleBean[] beans)
+        {
+            var g = new G
+            {
+                PageId = "SEL_EX001", SessionId = user.SessionId,
+                MasterUpdate = user.MasterUpdate, Token = user.Token,
+                Version = JpUtil.APP_VERSION
+            };
+            var body = new RequestBody {G = g};
+            var cc = new Dictionary<string, object>();
+            var list = new List<CItem> { };
+            foreach (var saleBean in beans)
+            {
+                var itm = new CItem
+                {
+                    Method = Methods.SetItem2,
+                    Option = saleBean
+                };
+                list.Add(itm);
+            }
+
+            cc.Add("Sales", list);
+            body.C = cc;
+            return await ApiRequest(body);
         }
 
         public void Logout()
@@ -338,7 +425,7 @@ namespace JpGoods.Api
                 client.Timeout = TimeSpan.FromSeconds(60);
                 var res = await client.SendAsync(req);
                 httpRes.Status = (int) res.StatusCode;
-
+                httpRes.Message = "REQUEST SUCCESS";
                 if (res.IsSuccessStatusCode)
                 {
                     var html = await res.Content.ReadAsStringAsync();

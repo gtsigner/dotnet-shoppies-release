@@ -1,15 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
+using JpGoods.Bean;
 using JpGoods.Libs;
 using JpGoods.Model;
 using JpGoods.Windows.Import;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace JpGoods.Windows
 {
@@ -50,121 +56,182 @@ namespace JpGoods.Windows
             if (btn.Name.Equals(BtnImport.Name))
             {
                 _context.IsImporting = true;
-                //正在保存
-                foreach (var goods in _goodses)
+                try
                 {
-                    var sq = from s in App.DbCtx.Goods where s.GoodsNo == goods.GoodsNo select s;
-                    var ext = await sq.FirstOrDefaultAsync();
-                    if (ext == null)
+                    //正在保存
+                    foreach (var goods in _goodses)
                     {
-                        await App.DbCtx.Goods.AddAsync(goods);
+                        var sq = from s in App.DbCtx.Goods where s.GoodsNo == goods.GoodsNo select s;
+                        var ext = await sq.FirstOrDefaultAsync();
+                        if (ext == null)
+                        {
+                            await App.DbCtx.Goods.AddAsync(goods);
+                        }
+                        else
+                        {
+                            //App.DbCtx.Entry(goods).CurrentValues.SetValues(goods);
+                        }
                     }
-                    else
-                    {
-                        App.DbCtx.Entry(goods).CurrentValues.SetValues(goods);
-                    }
+
+                    await App.DbCtx.SaveChangesAsync();
+                    _context.LogText = $"保存成功：{_goodses.Count}";
+                }
+                catch (Exception ex)
+                {
+                    //
+                    Debug.WriteLine(ex);
                 }
 
-                await App.DbCtx.SaveChangesAsync();
-                _context.LogText = $"保存成功：{_goodses.Count}";
                 _context.IsImporting = false;
             }
         }
 
+//        private async void StartParse()
+//        {
+//            _context.IsParsing = true;
+//            _goodses.Clear(); //清空
+//            _context.GoodsCount = 0;
+//
+//            _context.LogText = $"正在解析总页数:{_context.Url}";
+//            var res = await _mainWindow.Api.ViewUrl(_context.Url);
+//            if (!res.Ok)
+//            {
+//                _context.LogText = $"解析失败:{res.Message} / {res.Status}";
+//                return;
+//            }
+//
+//            //1.解析分页
+//            var page = JpParse.ParsePagerCount(res.Data.ToString());
+//            _context.LogText = $"一共解析出：{page} 页";
+//            if (page > 0)
+//            {
+//                var userShopId = _context.Url.Replace("https://shoppies.jp/user-shop/", "");
+//
+//                //2.解析具体的分页内容
+//                for (var i = 0; i < page; i++)
+//                {
+//                    var p = i + 1;
+//                    await ParsePage(userShopId, p);
+//                }
+//            }
+//            else
+//            {
+//                _context.LogText = $"内容：{res.Data}";
+//            }
+//
+//            _context.IsParsing = false;
+//        }
         private async void StartParse()
         {
             _context.IsParsing = true;
             _goodses.Clear(); //清空
             _context.GoodsCount = 0;
-
-            _context.LogText = $"正在解析总页数:{_context.Url}";
-            var res = await _mainWindow.Api.ViewUrl(_context.Url);
-            if (!res.Ok)
+            try
             {
-                _context.LogText = $"解析失败:{res.Message} / {res.Status}";
-                return;
-            }
-
-            //1.解析分页
-            var page = JpParse.ParsePagerCount(res.Data.ToString());
-            _context.LogText = $"一共解析出：{page} 页";
-            if (page > 0)
-            {
-                var userShopId = _context.Url.Replace("https://shoppies.jp/user-shop/", "");
-
-                //2.解析具体的分页内容
-                for (var i = 0; i < page; i++)
+                _context.LogText = $"正在解析总页数:{_context.Url}";
+                //解析url 识别shopId
+                var match = Regex.Match(_context.Url, "\\d+$");
+                var shopId = match?.Value ?? "";
+                if (shopId.Equals(string.Empty))
                 {
-                    var p = i + 1;
-                    await ParsePage(userShopId, p);
+                    throw new Exception("解析URL ShopID失败");
                 }
+
+                var res = await _mainWindow.Api.GetShopItemList(_mainWindow.Anonymous, shopId);
+                if (!res.Ok)
+                {
+                    throw new Exception($"解析失败:{res.Message} / {res.Status}");
+                }
+
+                var data = res.Data as ResData;
+                if (null == data || data?.StatusCode != 1)
+                {
+                    throw new Exception($"获取失败:{data?.Error.Message}");
+                }
+
+                var beans = data.Item.GetValue("getShopItemList").ToObject<JObject>().GetValue("list")
+                    .ToObject<List<ItemBean>>();
+
+                var ids = beans.ConvertAll((bean) => bean.item_id.ToString());
+                _context.LogText = $"获取：{ids.Count}个商品";
+                //解析
+                var task = ParseGoods(ids);
             }
-            else
+            catch (Exception e)
             {
-                _context.LogText = $"内容：{res.Data}";
+                Debug.WriteLine(e);
+                _context.LogText = $"解析失败:{e.Message}";
             }
 
             _context.IsParsing = false;
         }
 
         /// <summary>
-        /// 解析整页面
+        /// 获取商品
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="p"></param>
-        private async Task ParsePage(string id, int p)
-        {
-            _context.LogText = $"正在解析:{id}中的第:{p}页数据";
-
-            var url = $"https://shoppies.jp/user-shop/{id}/p/{p}";
-            var res = await _mainWindow.Api.ViewUrl(url);
-            if (!res.Ok)
-            {
-                _context.LogText = $"解析第:{p}页失败 / {res.Message} / {res.Status} / {res.Url}";
-                return;
-            }
-
-            //直接批量获取
-            var list = JpParse.ParseGoodsIds(res.Data.ToString());
-
-            foreach (var t in list)
-            {
-                await ParseItem(t);
-            }
-
-            _context.LogText = $"解析完毕:{_context.Url},商品数量:{_goodses.Count}";
-        }
-
-        /// <summary>
-        /// 解析子项目
-        /// </summary>
-        /// <param name="id"></param>
+        /// <param name="ids"></param>
         /// <returns></returns>
-        private async Task ParseItem(string id)
+        /// <exception cref="Exception"></exception>
+        private async Task ParseGoods(List<string> ids)
         {
-            var url = $"https://shoppies.jp/user-item/{id}";
-            _context.LogText = $"正在解析商品:{id}";
-            var res = await _mainWindow.Api.ViewUrl(url);
-            if (!res.Ok)
+            try
             {
-                _context.LogText = $"访问失败:{res.Message} / {res.Status}";
-                return;
-            }
+                var strs = ids.ToArray();
+                var res = await _mainWindow.Api.GetItemsDetail(_mainWindow.Anonymous, strs);
+                if (!res.Ok)
+                {
+                    throw new Exception(res.Message);
+                }
 
-            var goods = JpParse.ParseGoods(res.Data.ToString());
-            if (goods != null)
-            {
-                _goodses.Add(goods);
-                _context.GoodsCount++;
-                _context.LogText = $"商品详情:{id} 解析成功";
-                //下载图片
-                await DownLoadPics(goods.GoodsNo + "", goods.Images);
+                var data = res.Data as ResData;
+                if (data == null)
+                {
+                    throw new Exception(res.Message);
+                }
+
+                if (data.StatusCode != 1)
+                {
+                    throw new Exception(data.Error.Message);
+                }
+
+                var items = data.Item.GetValue("getItemDetail").ToObject<JObject>().GetValue("detail_list")
+                    .ToObject<List<ItemBean>>();
+                _context.LogText = $"解析到：{items.Count}个商品数据，正在下载商品图片";
+                //downloadImages
+                foreach (var item in items)
+                {
+                    var urls = item.picture.ConvertAll((pic) => pic.url).ToArray();
+                    var savePath = Path.Combine("Goods", item.item_id + "");
+                    await DownLoadPics(savePath, urls);
+                    //转化成商品后进行存库
+                    //写入到config文件
+                    var configFile = Path.Combine("Goods", item.item_id + "", "config.json");
+                    SaveConfigFile(configFile, JsonConvert.SerializeObject(item));
+                    var goods = JpParse.ParseBeanToGoods(item);
+                    _goodses.Add(goods);
+                    _context.GoodsCount++;
+                    _context.LogText = $"商品详情:{item.item_id} 解析成功";
+                }
             }
-            else
+            catch (Exception e)
             {
-                _context.LogText = $"商品详情:{id} 解析失败：{res.Data}";
+                Console.WriteLine(e);
+                _context.LogText = $"获取goods明细失败:{e.Message}";
             }
         }
+
+        private async void SaveConfigFile(string file, string data)
+        {
+            try
+            {
+                File.WriteAllText(file, data);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }
+
 
         /// <summary>
         /// 下载图片
@@ -186,7 +253,7 @@ namespace JpGoods.Windows
                 var file = Path.Combine(path, $"{i}.jpg");
                 try
                 {
-                    //判断是否可以进行读写
+                    //判断是否可以进行读写,TODO 可以进行并发下载，不会封IP
                     var res = await _mainWindow.Api.GetImage(url);
                     if (!res.Ok) throw new Exception("下载图片失败");
                     //写入文件

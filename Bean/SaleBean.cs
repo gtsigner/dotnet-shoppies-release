@@ -18,7 +18,7 @@ namespace JpGoods.Bean
         [JsonProperty("category_id")] public string CategoryId { get; set; }
         [JsonProperty("explanation")] public string Explanation { get; set; }
         [JsonProperty("img_list")] public string ImgList { get; set; }
-        [JsonProperty("input_price")] public int InputPrice { get; set; }
+        [JsonProperty("input_price")] public decimal InputPrice { get; set; }
         [JsonProperty("item_id")] public int ItemId { get; set; }
         [JsonProperty("mode")] public int Mode { get; set; }
         [JsonProperty("no_price_flag")] public int NoPriceFlag { get; set; }

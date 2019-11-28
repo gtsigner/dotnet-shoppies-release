@@ -10,7 +10,7 @@ namespace JpGoods.Ctx
         private bool _isRunning = false;
         private string _accountFile = "";
         private int _changeInterval = 120;
-        private int _releaseInterval = 1;
+        private int _releaseInterval = 10;
         private int _currentUserIndex = 0;
         private int _currentGoodsIndex = 0;
         private bool _isCheckAll = false;

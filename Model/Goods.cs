@@ -12,18 +12,42 @@ namespace JpGoods.Model
     public sealed class Goods : INotifyPropertyChanged
     {
         private ulong _id;
+        private int _memberId; //所属
+        private int _itemId;
+
+        [Column("member_id"), JsonProperty("member_id")]
+        public int MemberId
+        {
+            get => _memberId;
+            set
+            {
+                _memberId = value;
+                OnPropertyChanged(nameof(MemberId));
+            }
+        }
+
+        [Column("item_id"), JsonProperty("item_id")]
+        public int ItemId
+        {
+            get => _itemId;
+            set
+            {
+                _itemId = value;
+                OnPropertyChanged(nameof(ItemId));
+            }
+        }
+
+
         private int _goodsNo;
         private string _title;
         private bool _isChecked = false;
         private string _status = "";
         private string _size;
-        private string _x2;
         private decimal _price;
         private string _json;
         private string _area = "";
-        private string _brand = "";
         private string _brandId = "";
-        private string _desc = "";
+        private string _desc = ""; //explanation
         private string _brandName = "";
         private string _shippingMethod = "";
         private string _shippingArea = "";
@@ -31,6 +55,20 @@ namespace JpGoods.Model
         private string _shippingLiao = "";
         private string[] _images = new string[0];
         private string _imagesString = "";
+
+
+        private string _releaseStatus = "";
+
+        [NotMapped]
+        public string ReleaseStatus
+        {
+            get => _releaseStatus;
+            set
+            {
+                _releaseStatus = value;
+                OnPropertyChanged(nameof(ReleaseStatus));
+            }
+        }
 
 
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity), Column("id")]
@@ -168,17 +206,6 @@ namespace JpGoods.Model
             }
         }
 
-        [Column("brand"), JsonProperty("brand")]
-        public string Brand
-        {
-            get => _brand;
-            set
-            {
-                _brand = value;
-                OnPropertyChanged(nameof(Brand));
-            }
-        }
-
         [Column("json"), JsonProperty("json")]
         public string Json
         {
@@ -221,7 +248,7 @@ namespace JpGoods.Model
             get => _categoryName;
             set
             {
-                _categoryName = value;
+                _categoryName = value.Trim();
                 OnPropertyChanged(nameof(CategoryName));
             }
         }
@@ -258,17 +285,6 @@ namespace JpGoods.Model
             {
                 _size = value;
                 OnPropertyChanged(nameof(Size));
-            }
-        }
-
-        [Column("x2")]
-        public string X2
-        {
-            get => _x2;
-            set
-            {
-                _x2 = value;
-                OnPropertyChanged(nameof(X2));
             }
         }
 

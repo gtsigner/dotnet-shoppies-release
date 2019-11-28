@@ -13,6 +13,8 @@ namespace JpGoods.Bean
         [JsonProperty("Item")] public JObject Item { get; set; }
         [JsonProperty("Auth")] public JObject Auth { get; set; }
         [JsonProperty("Sales")] public JObject Sales { get; set; }
+        [JsonProperty("MasterInfo")] public JObject MastInfo { get; set; }
+        
         [JsonProperty("master_info")] public JObject MasterInfo { get; set; }
 
         [JsonProperty("error")] public Error Error { get; set; }

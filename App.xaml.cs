@@ -25,7 +25,7 @@ namespace JpGoods
             Startup += App_Startup;
             Exit += App_Exit;
         }
-
+        
         private void App_Exit(object sender, ExitEventArgs e)
         {
             DbCtx.Dispose();
@@ -45,7 +45,10 @@ namespace JpGoods
         private void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
         {
             //task线程内未处理捕获
-            MessageBox.Show("捕获线程内未处理异常：" + e.Exception.Message);
+            var msg = e.Exception.Message;
+            msg += e.Exception.StackTrace;
+            MessageBox.Show("捕获线程内未处理异常：" + msg);
+            Console.WriteLine(e.Exception);
             e.SetObserved(); //设置该异常已察觉（这样处理后就不会引起程序崩溃）
         }
 
@@ -54,8 +57,10 @@ namespace JpGoods
         {
             try
             {
-                e.Handled = true; //把 Handled 属性设为true，表示此异常已处理，程序可以继续运行，不会强制退出      
-                MessageBox.Show("捕获未处理异常:" + e.Exception.Message);
+                e.Handled = true; //把 Handled 属性设为true，表示此异常已处理，程序可以继续运行，不会强制退出
+                var msg = e.Exception.Message;
+                msg += e.Exception.StackTrace;
+                MessageBox.Show("捕获未处理异常:" + msg);
             }
             catch (Exception ex)
             {
@@ -78,15 +83,17 @@ namespace JpGoods
             }
 
             sbEx.Append("捕获未处理异常：");
-            if (e.ExceptionObject is Exception)
+            if (e.ExceptionObject is Exception exception)
             {
-                sbEx.Append(((Exception) e.ExceptionObject).Message);
+                sbEx.Append(exception.Message);
+                sbEx.Append(exception.StackTrace);
             }
             else
             {
                 sbEx.Append(e.ExceptionObject);
             }
 
+            Console.WriteLine(sbEx);
             MessageBox.Show(sbEx.ToString());
         }
     }

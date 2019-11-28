@@ -71,7 +71,7 @@ namespace JpGoods.Windows.Import
 
         #region 日志
 
-        private readonly StringBuilder _logStringBuilder = new StringBuilder();
+        private string _logStringBuilder = "";
 
 
         /// <summary>
@@ -79,16 +79,16 @@ namespace JpGoods.Windows.Import
         /// </summary>
         public string LogText
         {
-            get => _logStringBuilder.ToString();
+            get => _logStringBuilder;
             set
             {
-                if (value == string.Empty || _logStringBuilder.Length > 100 * 10000)
+                if (value == String.Empty || _logStringBuilder.Length > 100000)
                 {
-                    _logStringBuilder.Clear();
+                    _logStringBuilder = "";
                 }
 
                 var dateStr = DateTime.Now.ToLocalTime().ToString(CultureInfo.CurrentCulture);
-                _logStringBuilder.Append($"{dateStr} - {value}\n");
+                _logStringBuilder = ($"{dateStr} - {value}\n") + _logStringBuilder;
                 OnPropertyChanged(nameof(LogText));
             }
         }

@@ -28,7 +28,7 @@
                 </Grid.ColumnDefinitions>
                 <DockPanel>
                     <Label>账号文本：</Label>
-                    <TextBox IsEnabled="{Binding Status.IsStop}" Width="200" Text="{Binding Status.AccountFile}" />
+                    <TextBox IsEnabled="{Binding Status.IsStop}" Width="400" Text="{Binding Status.AccountFile}" />
                     <Button IsEnabled="{Binding Status.IsStop}" Width="40" Name="BtnChoose" Click="ButtonClick">选择</Button>
                 </DockPanel>
                 <DockPanel Grid.Column="1">
@@ -60,7 +60,6 @@
             </Grid>
             <Grid Grid.Row="1">
                 <DataGrid Name="DgGoodsList" AutoGenerateColumns="False" ItemsSource="{Binding}" CanUserAddRows="False"
-                          IsReadOnly="True"
                           SelectionChanged="DgGoodsList_SelectionChanged">
                     <DataGrid.ColumnHeaderStyle>
                         <Style TargetType="DataGridColumnHeader">
@@ -69,19 +68,20 @@
                     </DataGrid.ColumnHeaderStyle>
                     <DataGrid.Columns>
                         <DataGridCheckBoxColumn Width="60" Header="选择" Binding="{Binding IsChecked}" />
-                        <DataGridTextColumn Width="60" Header="编号" Binding="{Binding Id}" />
-                        <DataGridTextColumn Width="80" Header="No" Binding="{Binding GoodsNo}" />
-                        <DataGridTextColumn Width="*" Header="发布状态" Binding="{Binding Status}" />
-                        <DataGridTextColumn Width="*" Header="商品名称" Binding="{Binding Title}" />
-                        <DataGridTextColumn Width="*" Header="分类名称" Binding="{Binding CategoryName}" />
-                        <DataGridTextColumn Width="*" Header="品牌名称" Binding="{Binding BrandName}" />
-                        <DataGridTextColumn Width="*" Header="Size" Binding="{Binding Size}" />
-                        <DataGridTextColumn Width="80" Header="商品价格" Binding="{Binding Price}" />
-                        <DataGridTextColumn Width="*" Header="状态" Binding="{Binding Status}" />
-                        <DataGridTextColumn Width="*" Header="配送料" Binding="{Binding ShippingLiao}" />
-                        <DataGridTextColumn Width="*" Header="配送方法" Binding="{Binding ShippingMethod}" />
-                        <DataGridTextColumn Width="*" Header="出品地域" Binding="{Binding Area}" />
-                        <DataGridTextColumn Width="*" Header="配送日" Binding="{Binding ShippingDate}" />
+                        <DataGridTextColumn Width="60" Header="编号" Binding="{Binding Id}" IsReadOnly="True" />
+                        <DataGridTextColumn Width="80" Header="No" Binding="{Binding GoodsNo}" IsReadOnly="True" />
+                        <DataGridTextColumn Width="*" Header="发布状态" Binding="{Binding ReleaseStatus}" IsReadOnly="True" />
+                        <DataGridTextColumn Width="*" Header="商品名称" Binding="{Binding Title}" IsReadOnly="True" />
+                        <DataGridTextColumn Width="*" Header="分类名称" Binding="{Binding CategoryName}" IsReadOnly="True" />
+                        <DataGridTextColumn Width="*" Header="品牌名称" Binding="{Binding BrandName}" IsReadOnly="True" />
+                        <DataGridTextColumn Width="*" Header="Size" Binding="{Binding Size}" IsReadOnly="True" />
+                        <DataGridTextColumn Width="80" Header="商品价格" Binding="{Binding Price}" IsReadOnly="True" />
+                        <DataGridTextColumn Width="*" Header="状态" Binding="{Binding Status}" IsReadOnly="True" />
+                        <DataGridTextColumn Width="*" Header="配送料" Binding="{Binding ShippingLiao}" IsReadOnly="True" />
+                        <DataGridTextColumn Width="*" Header="配送方法" Binding="{Binding ShippingMethod}"
+                                            IsReadOnly="True" />
+                        <DataGridTextColumn Width="*" Header="出品地域" Binding="{Binding Area}" IsReadOnly="True" />
+                        <DataGridTextColumn Width="*" Header="配送日" Binding="{Binding ShippingDate}" IsReadOnly="True" />
                     </DataGrid.Columns>
                 </DataGrid>
             </Grid>

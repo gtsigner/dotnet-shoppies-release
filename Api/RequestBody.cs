@@ -77,14 +77,14 @@ namespace JpGoods.Api
         public static readonly string RegistUserTemp = "registUserTemp";
         public static readonly string GetBrandList = "getBrandList";
         public static readonly string GetCategoryList = "getCategoryList";
+        public static readonly string SetItem2 = "setItem2";
+        public static readonly string GetShopItemList = "getShopItemList";
     }
 
     public class CItem
     {
-        [JsonProperty("method")]
-        public string Method { get; set; }
+        [JsonProperty("method")] public string Method { get; set; }
 
-        [JsonProperty("option")]
-        public object Option { get; set; }
+        [JsonProperty("option")] public object Option { get; set; }
     }
 }
