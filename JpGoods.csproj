@@ -1,0 +1,48 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <UseWPF>true</UseWPF>
+        <StartupObject>JpGoods.App</StartupObject>
+        <AssemblyName>Shopping UpGoods</AssemblyName>
+        <NoWin32Manifest>true</NoWin32Manifest>
+        <ApplicationIcon />
+        <LangVersion>8</LangVersion>
+        <Nullable>disable</Nullable>
+        <TargetFrameworks>net472</TargetFrameworks>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Folder Include="Resources" />
+        <Folder Include="Utils" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="HtmlAgilityPack" Version="1.11.17" />
+        <PackageReference Include="MaterialDesignThemes" Version="2.6.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.0-preview3.19554.8" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.0-preview3.19554.8" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.0-preview3.19554.8" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.0-preview3.19554.8" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\rv-core\rv-core.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.0" />
+    </ItemGroup>
+    <ItemGroup>
+      <Compile Update="Properties\Resources.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>Resources.resx</DependentUpon>
+      </Compile>
+    </ItemGroup>
+    <ItemGroup>
+      <EmbeddedResource Update="Properties\Resources.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+    </ItemGroup>
+</Project>

@@ -1,0 +1,421 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+    <!-- 
+      Microsoft ResX Schema 
+      
+      Version 2.0
+      
+      The primary goals of this format is to allow a simple XML format 
+      that is mostly human readable. The generation and parsing of the 
+      various data types are done through the TypeConverter classes 
+      associated with the data types.
+      
+      Example:
+      
+      ... ado.net/XML headers & schema ...
+      <resheader name="resmimetype">text/microsoft-resx</resheader>
+      <resheader name="version">2.0</resheader>
+      <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+      <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+      <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+      <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+      <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+          <value>[base64 mime encoded serialized .NET Framework object]</value>
+      </data>
+      <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+          <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+          <comment>This is a comment</comment>
+      </data>
+                  
+      There are any number of "resheader" rows that contain simple 
+      name/value pairs.
+      
+      Each data row contains a name, and value. The row also contains a 
+      type or mimetype. Type corresponds to a .NET class that support 
+      text/value conversion through the TypeConverter architecture. 
+      Classes that don't support this are serialized and stored with the 
+      mimetype set.
+      
+      The mimetype is used for serialized objects, and tells the 
+      ResXResourceReader how to depersist the object. This is currently not 
+      extensible. For a given mimetype the value must be set accordingly:
+      
+      Note - application/x-microsoft.net.object.binary.base64 is the format 
+      that the ResXResourceWriter will generate, however the reader can 
+      read any of the formats listed below.
+      
+      mimetype: application/x-microsoft.net.object.binary.base64
+      value   : The object must be serialized with 
+              : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+              : and then encoded with base64 encoding.
+      
+      mimetype: application/x-microsoft.net.object.soap.base64
+      value   : The object must be serialized with 
+              : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+              : and then encoded with base64 encoding.
+  
+      mimetype: application/x-microsoft.net.object.bytearray.base64
+      value   : The object must be serialized into a byte array 
+              : using a System.ComponentModel.TypeConverter
+              : and then encoded with base64 encoding.
+      -->
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+        <xsd:element name="root" msdata:IsDataSet="true">
+            <xsd:complexType>
+                <xsd:choice maxOccurs="unbounded">
+                    <xsd:element name="metadata">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0"/>
+                            </xsd:sequence>
+                            <xsd:attribute name="name" use="required" type="xsd:string"/>
+                            <xsd:attribute name="type" type="xsd:string"/>
+                            <xsd:attribute name="mimetype" type="xsd:string"/>
+                            <xsd:attribute ref="xml:space"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="assembly">
+                        <xsd:complexType>
+                            <xsd:attribute name="alias" type="xsd:string"/>
+                            <xsd:attribute name="name" type="xsd:string"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="data">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+                                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2"/>
+                            </xsd:sequence>
+                            <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1"/>
+                            <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3"/>
+                            <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4"/>
+                            <xsd:attribute ref="xml:space"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="resheader">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+                            </xsd:sequence>
+                            <xsd:attribute name="name" type="xsd:string" use="required"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:choice>
+            </xsd:complexType>
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>2.0</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral,
+            PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral,
+            PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <data name="areas" xml:space="preserve">
+    <value>{
+  "1": "北海道",
+  "2": "青森県",
+  "3": "岩手県",
+  "4": "宮城県",
+  "5": "秋田県",
+  "6": "山形県",
+  "7": "福島県",
+  "8": "福井県",
+  "9": "新潟県",
+  "10": "富山県",
+  "11": "石川県",
+  "12": "山梨県",
+  "13": "長野県",
+  "14": "岐阜県",
+  "15": "静岡県",
+  "16": "愛知県",
+  "17": "東京都",
+  "18": "神奈川県",
+  "19": "千葉県",
+  "20": "埼玉県",
+  "21": "群馬県",
+  "22": "栃木県",
+  "23": "茨城県",
+  "24": "三重県",
+  "25": "兵庫県",
+  "26": "奈良県",
+  "27": "大阪府",
+  "28": "滋賀県",
+  "29": "京都府",
+  "30": "和歌山県",
+  "31": "島根県",
+  "32": "岡山県",
+  "33": "広島県",
+  "34": "山口県",
+  "35": "鳥取県",
+  "36": "徳島県",
+  "37": "香川県",
+  "38": "愛媛県",
+  "39": "高知県",
+  "40": "福岡県",
+  "41": "佐賀県",
+  "42": "長崎県",
+  "43": "熊本県",
+  "44": "大分県",
+  "45": "宮崎県",
+  "46": "鹿児島県",
+  "47": "沖縄県"
+}</value>
+  </data>
+    <data name="categories" xml:space="preserve">
+    <value>{
+  "0101": "Tシャツ(半袖 / ノースリーブ)",
+  "0102": "Tシャツ(長袖 / 五丈 / 七丈)",
+  "0103": "カットソー(半袖 / ノースリーブ)",
+  "0104": "カットソー(長袖 / 五丈 / 七丈)",
+  "0105": "シャツ / ブラウス(半袖 / ノースリーブ)",
+  "0106": "シャツ / ブラウス(長袖 / 五丈 / 七丈)",
+  "0107": "ポロシャツ",
+  "0108": "ニット / セーター",
+  "0109": "パーカー",
+  "0110": "カーディガン",
+  "0111": "トレーナー / スウェット",
+  "0112": "キャミソール",
+  "0113": "タンクトップ",
+  "0114": "ベアトップ / チューブトップ",
+  "0115": "ホルターネック",
+  "0116": "チュニック",
+  "0117": "ベスト / ジレ",
+  "0118": "アンサンブル",
+  "0119": "ボレロ",
+  "0201": "テーラードジャケット",
+  "0202": "ライダースジャケット",
+  "0203": "Gジャン / デニムジャケット",
+  "0204": "ミリタリージャケット",
+  "0205": "ノーカラージャケット",
+  "0206": "ダウンジャケット",
+  "0207": "ダウンベスト",
+  "0208": "ブルゾン",
+  "0209": "ポンチョ",
+  "0210": "スタジャン",
+  "0211": "スカジャン",
+  "0212": "ロングコート",
+  "0213": "トレンチコート",
+  "0214": "ダッフルコート",
+  "0215": "ピーコート",
+  "0216": "モッズコート",
+  "0217": "毛皮 / ファーコート",
+  "0218": "スプリングコート",
+  "0219": "ダウンコート",
+  "0301": "ミニワンピース",
+  "0302": "ひざ丈ワンピース",
+  "0303": "ロングワンピース",
+  "0401": "ハイヒール / パンプス",
+  "0402": "ブーツ",
+  "0403": "サンダル",
+  "0404": "スニーカー",
+  "0408": "ブーティ",
+  "0405": "ミュール",
+  "0406": "ローファー / 革靴",
+  "0407": "ラバーブーツ / 長靴",
+  "0501": "デニム / ジーンズ",
+  "0502": "ショートパンツ",
+  "0503": "カジュアルパンツ",
+  "0504": "ハーフパンツ",
+  "0505": "チノパン",
+  "0512": "スキニーパンツ",
+  "0506": "ワークパンツ / カーゴパンツ",
+  "0507": "クロップドパンツ",
+  "0508": "サロペット / オーバーオール",
+  "0509": "オールインワン",
+  "0510": "キュロット",
+  "0511": "サルエルパンツ",
+  "0601": "ミニスカート",
+  "0602": "ひざ丈スカート",
+  "0603": "ロングスカート",
+  "0604": "ジャンパースカート",
+  "0701": "コーディネート",
+  "0702": "まとめ売り",
+  "0802": "ショルダーバッグ",
+  "0803": "ハンドバッグ",
+  "0804": "トートバッグ",
+  "0805": "リュック / バックパック",
+  "0806": "ボストンバッグ",
+  "0807": "クラッチバッグ",
+  "0808": "エコバッグ",
+  "0809": "ボディバッグ / ウエストポーチ",
+  "0810": "メッセンジャーバッグ",
+  "0811": "旅行用バッグ / キャリーバッグ",
+  "0812": "ショップ袋",
+  "0901": "リング",
+  "0902": "ネックレス",
+  "0903": "ブレスレット / バングル",
+  "0904": "ピアス",
+  "0905": "イアリング",
+  "0906": "ブローチ / コサージュ",
+  "0907": "つけ襟",
+  "1001": "ヘアバンド",
+  "1002": "カチューシャ",
+  "1003": "ヘアゴム / シュシュ",
+  "1004": "ヘアピン",
+  "1005": "コーム / バレッタ",
+  "1101": "ルームウェア",
+  "1102": "パジャマ",
+  "1201": "ソックス",
+  "1202": "レギンス / スパッツ",
+  "1203": "タイツ / ストッキング",
+  "1204": "レッグウォーマー",
+  "1301": "ニットキャップ / ビーニー",
+  "1302": "ハット",
+  "1303": "ハンチング / ベレー帽",
+  "1304": "キャップ",
+  "1305": "キャスケット",
+  "1401": "小物 / アクセサリー",
+  "1402": "素材 / パーツ",
+  "1501": "ベルト",
+  "1502": "サングラス / メガネ",
+  "1503": "腕時計",
+  "1504": "財布",
+  "1505": "マフラー / ショール",
+  "1506": "ストール / パシュミナ",
+  "1507": "モバイルケース、カバー",
+  "1508": "ポーチ",
+  "1509": "ストラップ / イヤホンジャック",
+  "1510": "イヤーマフ",
+  "1511": "手袋",
+  "1512": "バンダナ / スカーフ",
+  "1513": "ハンカチ",
+  "1514": "名刺入れ / 定期入れ",
+  "1515": "キーホルダー",
+  "1516": "ネクタイ",
+  "1517": "サスペンダー",
+  "1518": "ネックウォーマー",
+  "1519": "コインケース",
+  "1520": "傘",
+  "1521": "小物その他",
+  "1601": "ショート / ボブ",
+  "1603": "ミディアム",
+  "1604": "ロング",
+  "1605": "前髪 / パーツウィッグ",
+  "1606": "エクステ",
+  "1607": "ウィッグ小物",
+  "1701": "メイクアップ",
+  "1702": "ネイルチップ",
+  "1703": "ネイルケア",
+  "1704": "ネイル / デコパーツ",
+  "1705": "香水",
+  "1706": "ヘアケア",
+  "1707": "ボディケア",
+  "1708": "ハンドケア",
+  "1709": "カラコン",
+  "1710": "サプリメント",
+  "1801": "浴衣",
+  "1802": "浴衣帯",
+  "1803": "着物",
+  "1804": "振袖",
+  "1805": "帯",
+  "1806": "和装小物",
+  "1807": "水着",
+  "1808": "和装その他",
+  "1901": "スーツ",
+  "1902": "ドレス",
+  "2001": "マタニティウェア",
+  "2002": "マタニティグッズ",
+  "2003": "ベビーウェア",
+  "2005": "ベビーシューズ",
+  "2006": "ベビー用品",
+  "2007": "ベビーカー",
+  "2008": "キッズウェア(男の子用)",
+  "2009": "キッズウェア(女の子用)",
+  "2010": "キッズシューズ",
+  "2011": "キッズバッグ",
+  "2012": "キッズ小物",
+  "2013": "おもちゃ",
+  "9101": "本・雑誌",
+  "9102": "漫画",
+  "9103": "CD",
+  "9104": "DVD",
+  "9105": "ゲーム",
+  "9201": "おもちゃ",
+  "9202": "ぬいぐるみ",
+  "9203": "キャラクターグッズ",
+  "9301": "アイドル関連",
+  "9302": "トレーディングカード",
+  "9303": "コミック・アニメ本・音楽・ＤＶＤ",
+  "9304": "コミック・アニメグッズ",
+  "9305": "男性ミュージシャン関連",
+  "9306": "女性ミュージシャン関連",
+  "9307": "グループミュージシャン関連",
+  "9308": "お笑い芸人関連",
+  "9309": "海外アーティスト関連",
+  "9310": "その他タレント関連商品",
+  "9401": "キッチン / 食器",
+  "9402": "家具",
+  "9403": "ライト / 照明",
+  "9404": "寝具",
+  "9405": "雑貨",
+  "9406": "その他",
+  "9501": "携帯電話 / スマートフォン",
+  "9502": "生活家電",
+  "9503": "カメラ",
+  "9504": "PC",
+  "9505": "テレビ / 映像機器",
+  "9506": "オーディオ機器",
+  "9507": "その他",
+  "9601": "筆記用具",
+  "9602": "ノート・バインダー",
+  "9603": "包装用品",
+  "9604": "その他文房具",
+  "9901": "カルチャー",
+  "9902": "レジャー・スポーツ",
+  "9903": "自動車用品",
+  "9904": "ペット用品",
+  "9905": "食品",
+  "9906": "楽器・機材",
+  "9999": "その他"
+}</value>
+  </data>
+    <data name="shippings" xml:space="preserve">
+    <value>{
+  "0": "未定",
+  "1": "普通郵便(定型/定型外)",
+  "2": "ゆうパック",
+  "3": "レターパックプラス",
+  "4": "レターパックライト",
+  "5": "メール便/ゆうメール",
+  "6": "ヤマト宅急便",
+  "7": "ポスパケット",
+  "8": "はこBOON",
+  "11": "ゆうパック着払い",
+  "12": "ヤマト宅急便",
+  "13": "ポスパケット",
+  "17": "飛脚宅急便",
+  "19": "ゆうメール着払い",
+  "81": "クリックポスト",
+  "82": "飛脚メール便",
+  "83": "飛脚宅急便",
+  "84": "カンガルーミニ便",
+  "85": "宅急便コンパクト",
+  "86": "ゆうメール",
+  "87": "スマートレター"
+}</value>
+        <comment>快递方式</comment>
+  </data>
+    <data name="shipday" xml:space="preserve">
+    <value>{
+  "0": "指定なし",
+  "1": "1～2日で発送",
+  "2": "2～3日で発送",
+  "3": "4～7日で発送",
+  "5": "発送は週末のみ",
+  "6": "発送は平日のみ"
+}</value>
+        <comment>配送日期</comment>
+  </data>
+</root>
