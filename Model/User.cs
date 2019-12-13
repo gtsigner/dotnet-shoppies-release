@@ -13,12 +13,24 @@ namespace JpGoods.Model
     [Table("Users")]
     public class User : INotifyPropertyChanged
     {
-        private string _masterUpdate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+//        private string _masterUpdate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        private string _masterUpdate = "2019-11-26 12:07:20";
         private string _username = "";
         private string _password = "";
         private string _token = "";
         private string _sessionId = "";
         private string _uuid = "";
+        private int _errorCount = 0; //登录失败次数
+
+        public int ErrorCount
+        {
+            get => _errorCount;
+            set
+            {
+                _errorCount = value;
+                OnPropertyChanged(nameof(ErrorCount));
+            }
+        }
 
         [Column("uuid", TypeName = "VARCHAR"), StringLength(64), JsonProperty("uuid")]
         public string Uuid

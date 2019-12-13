@@ -187,6 +187,8 @@ namespace JpGoods.Libs
             goods.CategoryId = item.category_id;
             goods.CategoryName = JpConfig.GetCategoryName(item.category_id);
             goods.ShippingLiao = JpConfig.GetCarryType(item.carry_fee_type + "");
+            //获取默认的第一
+            item.carry_method = item.carry_method.Split(',')[0];
             goods.ShippingMethod = JpConfig.GetShippingMethodName(item.carry_method);
             goods.ShippingArea = item.area;
             goods.ShippingDate = JpConfig.GetShippingDateName(item.send_date_standard + "");
@@ -239,7 +241,7 @@ namespace JpGoods.Libs
             item.CategoryId = JpConfig.GetCateByTitle(JpConfig.Categories, goods.CategoryName)?.Value ?? "0";
 
 
-            //付款方式
+            //快递方式
             var method = Int32.Parse(JpConfig.GetCateByTitle(JpConfig.ShippingMethods, goods.ShippingMethod)?.Value ??
                                      "0");
             item.CarryMethod = new List<CarryMethod>
@@ -247,19 +249,25 @@ namespace JpGoods.Libs
                 new CarryMethod {MethodId = method}
             };
 
-            //配送
+            //配送料，自动对应
             var lia = JpConfig.GetCateByTitle(JpConfig.ShippingType, goods.ShippingLiao)?.Value ?? "0";
             item.CarryFeeType = method <= 10 ? 0 : 1; //和ShippingMethod对应
 
             //日期
-            var day = JpConfig.GetCateByTitle(JpConfig.ShippingDates, goods.ShippingMethod)?.Value ?? "0";
+            var day = JpConfig.GetCateByTitle(JpConfig.ShippingDates, goods.ShippingDate)?.Value ?? "0";
             item.SendDateStandard = Int32.Parse(day);
 
             //区域
             var areaId = JpConfig.GetCateByTitle(JpConfig.Areas, goods.Area)?.Value ?? "0";
             item.Prefecture = Int32.Parse(areaId);
 
+            //商品状态
+            var statId = JpConfig.GetCateByTitle(JpConfig.StatusType, goods.Status)?.Value ?? "0";
+            item.AtrStatus = Int32.Parse(statId);
+
+            //TODO
             item.SizeId = Int32.Parse(goods.Size);
+            item.SizeId = 0;
             item.Title = goods.Title;
             item.Explanation = goods.Desc;
             item.NoPriceFlag = 0; //1没价格，
@@ -268,8 +276,8 @@ namespace JpGoods.Libs
             item.PrivateMemberId = null;
             item.PrivateFlag = 0;
             item.ItemId = goods.ItemId; //如果是创建就指0
-            var statId = JpConfig.GetCateByTitle(JpConfig.StatusType, goods.Status)?.Value ?? "0";
-            item.AtrStatus = Int32.Parse(statId);
+
+
             item.Mode = 2; //?? 1=预览,2=发布
             item.RotStatus = 2; //默认
 

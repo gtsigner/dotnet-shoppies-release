@@ -9,13 +9,12 @@ namespace JpGoods.Model
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            options.UseSqlite("Data Source=blogging.db");
+            options.UseSqlite("Data Source=data.db");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Goods>().HasIndex(g=>g.GoodsNo).IsUnique();
+            modelBuilder.Entity<Goods>().HasIndex(g => g.GoodsNo).IsUnique();
         }
     }
-
 }

@@ -200,23 +200,31 @@ namespace JpGoods.Windows
                 //downloadImages
                 foreach (var item in items)
                 {
-                    var urls = item.picture.ConvertAll((pic) => pic.url).ToArray();
-                    var savePath = Path.Combine("Goods", item.item_id + "");
-                    await DownLoadPics(savePath, urls);
-                    //转化成商品后进行存库
-                    //写入到config文件
-                    var configFile = Path.Combine("Goods", item.item_id + "", "config.json");
-                    SaveConfigFile(configFile, JsonConvert.SerializeObject(item));
-                    var goods = JpParse.ParseBeanToGoods(item);
-                    _goodses.Add(goods);
-                    _context.GoodsCount++;
-                    _context.LogText = $"商品详情:{item.item_id} 解析成功";
+                    try
+                    {
+                        var urls = item.picture.ConvertAll((pic) => pic.url).ToArray();
+                        var savePath = Path.Combine("Goods", item.item_id + "");
+                        await DownLoadPics(savePath, urls);
+                        //转化成商品后进行存库
+                        //写入到config文件
+                        var configFile = Path.Combine("Goods", item.item_id + "", "config.json");
+                        SaveConfigFile(configFile, JsonConvert.SerializeObject(item));
+                        var goods = JpParse.ParseBeanToGoods(item);
+                        _goodses.Add(goods);
+                        _context.GoodsCount++;
+                        _context.LogText = $"商品详情:{item.item_id} 解析成功";
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine(ex);
+                        _context.LogText = $"商品详情:{item.item_id} 解析失败：{ex.Message}";
+                    }
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                _context.LogText = $"获取goods明细失败:{e.Message}";
+                _context.LogText = $"获取goods明细失败:{e.Message} 请重试";
             }
         }
 

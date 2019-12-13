@@ -25,7 +25,7 @@ namespace JpGoods
             Startup += App_Startup;
             Exit += App_Exit;
         }
-        
+
         private void App_Exit(object sender, ExitEventArgs e)
         {
             DbCtx.Dispose();

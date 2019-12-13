@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using JpGoods.Api;
 using JpGoods.Bean;
@@ -25,6 +24,7 @@ using Microsoft.Win32;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using rv_core.Utils;
+using rvcore.Proxy;
 using Timer = System.Timers.Timer;
 
 namespace JpGoods
@@ -45,9 +45,14 @@ namespace JpGoods
         //有序列表，表示调度循序
         private readonly SortedList<long, ReleaseTask> _tasks = new SortedList<long, ReleaseTask>();
 
+        //品牌缓存文件
+        private static readonly string BrandCacheFile = Path.Combine("Goods", "brands.json");
+        private string _lastUsername = "";
+
         public readonly User Anonymous = new User();
 
         private Timer _releaseTimer;
+        private Timer _traceTimer;
         private Thread _thread;
         public readonly JpApi Api;
 
@@ -55,14 +60,23 @@ namespace JpGoods
         {
             InitializeComponent();
             var factory = (IHttpClientFactory) App.MyServiceProvider.GetService(typeof(IHttpClientFactory));
-            Api = new JpApi(factory);
-            _checkAuth();
+            var ziMaProxy = new ZiMaProxy(factory, new ZiMaConfig());
+            Api = new JpApi(factory, ziMaProxy);
+
+//            _checkAuth();
 
             DataContext = _vm;
+            Api.Context = _vm;
+
             DgGoodsList.DataContext = _goodsList;
             _vm.LogText = "APP启动成功";
 
+
             App.DbCtx.Database.EnsureCreated(); //创建
+
+            //初始化配置
+            LoadConfig();
+
             //初始化timer
             InitTimer();
             //获取
@@ -104,7 +118,8 @@ namespace JpGoods
                 var user = Anonymous;
                 user.Init();
                 //2.登录临时用户
-                var tmp = await Api.RegisterUserTemp(user.Uuid);
+                //await Api.ChangeProxy();
+                var tmp = await Api.RegisterUserTemp(user);
                 if (tmp.Ok)
                 {
                     var data = tmp.Data as ResData;
@@ -118,9 +133,12 @@ namespace JpGoods
                     user.SessionId = u?.GetValue("registUserTemp")
                         .ToObject<JObject>().GetValue("session_id")
                         .ToString();
+
                     _vm.LogText = $"匿名用户登录成功:{user.SessionId}";
+
                     user.IsLogin = true; //登录成功
-                    this._initJpBrands(); //初始化品牌
+
+                    _initJpBrands(); //初始化品牌
                 }
                 else
                 {
@@ -130,15 +148,11 @@ namespace JpGoods
             catch (Exception ex)
             {
                 _vm.LogText = $"匿名用户登录失败:{ex.Message},5s 后会进行重试";
-                //重试
-//                Thread.Sleep(TimeSpan.FromSeconds(5));//导致主线程阻塞
-
                 await Task.Delay(TimeSpan.FromSeconds(5));
                 _initAnonymous();
             }
         }
 
-        private static readonly string BRAND_CACHE_FILE = Path.Combine("Goods", "brands.json");
 
         /// <summary>
         /// 初始化品牌
@@ -172,7 +186,7 @@ namespace JpGoods
                 _vm.LogText = $"初始化APP的品牌列表：OK / {brands.Count}个";
 
                 //写入配置文件
-                File.WriteAllText(BRAND_CACHE_FILE, JsonConvert.SerializeObject(brands));
+                File.WriteAllText(BrandCacheFile, JsonConvert.SerializeObject(brands));
             }
             catch (Exception ex)
             {
@@ -182,7 +196,7 @@ namespace JpGoods
 
         private async void _initCacheBrands()
         {
-            var cacheFile = BRAND_CACHE_FILE;
+            var cacheFile = BrandCacheFile;
             var cacheDir = Path.Combine("Goods");
             if (!Directory.Exists(cacheDir))
             {
@@ -213,6 +227,25 @@ namespace JpGoods
 
             _vm.Areas = areas;
 
+
+            //发货日期
+            var dates = new ObservableCollection<string>();
+            foreach (var keyValue in JpConfig.ShippingDates)
+            {
+                dates.Add(keyValue.Title);
+            }
+
+            _vm.ShippingDates = dates;
+
+            //Liao
+            var liaos = new ObservableCollection<string>();
+            foreach (var keyValue in JpConfig.ShippingType)
+            {
+                liaos.Add(keyValue.Title);
+            }
+
+            _vm.ShippingType = liaos;
+
             //发货方式
             var ships = new ObservableCollection<string>();
             foreach (var keyValue in JpConfig.ShippingMethods)
@@ -221,6 +254,26 @@ namespace JpGoods
             }
 
             _vm.ShippingMethods = ships;
+
+            //状态
+            var states = new ObservableCollection<string>();
+            foreach (var keyValue in JpConfig.StatusType)
+            {
+                states.Add(keyValue.Title);
+            }
+
+            _vm.StatusType = states;
+
+            //size
+            var sizes = new ObservableCollection<string>();
+            foreach (var keyValue in JpConfig.StatusType)
+            {
+                sizes.Add(keyValue.Title);
+            }
+
+            //_vm.StatusType = sizes;
+
+            //            _vm.ShippingType = liaos;
         }
 
         #region 任务初始化
@@ -236,6 +289,20 @@ namespace JpGoods
             _releaseTimer = new Timer {Enabled = true, Interval = 1000};
             _releaseTimer.Elapsed += ReleaseTimerUp;
             _releaseTimer.Start();
+
+            //10s 执行一次
+            _traceTimer = new Timer {Enabled = true, Interval = 10 * 1000};
+            _traceTimer.Elapsed += TraceInvoke;
+            _traceTimer.Start();
+        }
+
+        /// <summary>
+        /// 发送Trace事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TraceInvoke(object sender, ElapsedEventArgs e)
+        {
         }
 
         /// <summary>
@@ -274,7 +341,14 @@ namespace JpGoods
                 //如果程序停止
                 if (_queue.TryDequeue(out var task))
                 {
-                    await DoReleaseTask(task);
+                    try
+                    {
+                        await DoReleaseTask(task);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine(ex);
+                    }
                 }
 
                 Thread.Sleep(1000);
@@ -305,35 +379,53 @@ namespace JpGoods
                 _vm.LogText = $"任务执行失败:{task.Username}找不到对应信息";
             }
 
-            var isLogin = await UserLogin(user); //检测是否已经登录
-            if (!isLogin)
+            if (user == null)
             {
-                //任务失败
-                _vm.LogText = $"任务:{task.Username} / 商品:{task.GoodsNo} 执行失败";
-                return false;
+                _vm.LogText = $"任务执行失败:{task.Username}找不到对应信息";
             }
 
             try
             {
-                var bean = JpParse.ParseGoodsToSaleBean(goods);
-                bean.ItemId = 0;
-                //判断是否使用图片缓存
-                if (goods.ImagesString.Length <= 0)
+                //进行发布
+
+
+                //判断是否是切换账号了，如果是就直接勾选上所有商品
+                if (user.Username != _lastUsername)
                 {
-                    var images = await UploadImages(user, goods); //上传图片格式 x,x,x,x
-                    if (images.Equals(""))
+                    foreach (var goodse in _goodsList)
                     {
-                        throw new Exception("图片未上传成功");
+                        goodse.IsChecked = true;
                     }
 
-                    bean.ImgList = images;
+                    _lastUsername = user.Username;
                 }
-                else
+
+
+                var isLogin = await UserLogin(user); //检测是否已经登录
+                if (!isLogin)
                 {
-                    bean.ImgList = goods.ImagesString;
+                    //任务失败
+                    _vm.LogText = $"任务:{task.Username} / 商品:{task.GoodsNo} 执行失败";
+                    return false;
                 }
 
                 goods.ReleaseStatus = "正在发布";
+
+                var bean = JpParse.ParseGoodsToSaleBean(goods);
+                bean.ItemId = 0; //重置
+
+                //判断是否使用图片缓存
+                var images = await UploadImages(user, goods); //上传图片格式 x,x,x,x
+                if (images.Equals(""))
+                {
+                    throw new Exception("图片未上传成功");
+                }
+
+                _vm.LogText = $"上传完成：{images}";
+
+                bean.ImgList = images;
+
+
                 bean.Mode = 2;
                 var ret = await Api.SetItem(user, bean);
                 if (!ret.Ok)
@@ -347,18 +439,51 @@ namespace JpGoods
                     throw new Exception(data?.Error.Message);
                 }
 
+                //校验
+                var check = await Api.CheckSetItem(user);
+                if (check.Ok)
+                {
+                }
+
                 goods.ReleaseStatus = "发布成功";
                 _vm.LogText = $"{task.Username} / 商品：{goods.GoodsNo} / 发布成功";
             }
             catch (Exception ex)
             {
-                //
                 Debug.WriteLine(ex);
                 _vm.LogText = $" {task.Username} / 商品：{goods.GoodsNo} / 发布失败 / {ex.Message}";
                 goods.ReleaseStatus = "发布失败";
             }
 
+            //做一个延迟等待
+            await Task.Delay(TimeSpan.FromSeconds(_vm.Status.ReleaseInterval));
             return true;
+        }
+
+        /// <summary>
+        /// 清空某个用户的其他任务
+        /// </summary>
+        /// <param name="user"></param>
+        private void ClearUserTask(User user)
+        {
+            try
+            {
+                lock (_tasks)
+                {
+                    foreach (var task in _tasks)
+                    {
+                        if (task.Value.Username == user.Username)
+                        {
+                            _tasks.Remove(task.Key);
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                //ignore
+                Debug.WriteLine(e);
+            }
         }
 
         /// <summary>
@@ -370,13 +495,20 @@ namespace JpGoods
         {
             try
             {
+                if (user.IsLogin == false && user.ErrorCount >= 2)
+                {
+                    _vm.LogText = $"登录失败2次,自动切换账号:{user.Username}";
+                    ClearUserTask(user);
+                    return false;
+                }
+
                 if (user.IsLogin == false)
                 {
                     //1.初始化用户
                     _vm.LogText = $"正在登录账号:{user.Username}";
                     user.Init();
                     //2.登录临时用户
-                    var tmp = await Api.RegisterUserTemp(user.Uuid);
+                    var tmp = await Api.RegisterUserTemp(user);
                     if (tmp.Ok)
                     {
                         var data = tmp.Data as ResData;
@@ -387,7 +519,8 @@ namespace JpGoods
                         }
 
                         //sessionID
-                        user.SessionId = u?.GetValue("registUserTemp").ToObject<JObject>().GetValue("session_id")
+                        user.SessionId = u?.GetValue("registUserTemp").ToObject<JObject>()
+                            .GetValue("session_id")
                             .ToString();
                     }
                     else
@@ -396,7 +529,7 @@ namespace JpGoods
                     }
 
                     //进行登录
-                    var res = await Api.Login(user.SessionId, user.Uuid, user.Username, user.Password);
+                    var res = await Api.Login(user);
                     if (res.Ok)
                     {
                         var data = res.Data as ResData;
@@ -413,6 +546,7 @@ namespace JpGoods
                     }
                     else
                     {
+                        user.ErrorCount++;
                         throw new Exception($"{user.Username} 登录失败 / {tmp.Message}");
                     }
                 }
@@ -422,6 +556,7 @@ namespace JpGoods
             catch (Exception ex)
             {
                 _vm.LogText = $"登录失败: {ex.Message}";
+                user.ErrorCount++;
                 return false;
             }
         }
@@ -467,7 +602,7 @@ namespace JpGoods
                     _vm.LogText = $"正在上传图片：{file}";
                     var bytes = File.ReadAllBytes(file);
                     var filename = Logger.GetTimeStampMic() + ext; //文件名
-                    await Task.Delay(TimeSpan.FromSeconds(2)); //延迟2秒上传图片
+                    await Task.Delay(TimeSpan.FromSeconds(1)); //延迟2秒上传图片
                     var res = await Api.UploadImage(user, filename, bytes);
                     if (!res.Ok)
                     {
@@ -486,12 +621,14 @@ namespace JpGoods
                     }
 
                     //获取图片的ID
-                    var imageId = data.Sales.GetValue("setPhoto")
-                        .ToObject<JObject>().GetValue("image_id")
-                        .ToString();
+                    var photo = data.Sales.GetValue("setPhoto").ToObject<JObject>();
+
+                    //图片ID
+                    var imageId = photo.GetValue("image_id").ToString();
+                    var url = photo.GetValue("url").ToString();
 
                     list.Add(imageId);
-                    _vm.LogText = $"图片:{file} / upload success / ID={imageId}";
+                    _vm.LogText = $"图片：{file} / 上传成功 / {imageId} / {url}";
                 }
                 catch (Exception ex)
                 {
@@ -562,6 +699,53 @@ namespace JpGoods
             {
                 StopTask();
             }
+
+            //保存配置文件
+            if (btn.Name.Equals(BtnSaveConfig.Name))
+            {
+                SaveConfig();
+                Api.EnableProxy = _vm.Status.UseProxy;
+            }
+        }
+
+        /// <summary>
+        /// 保存配置
+        /// </summary>
+        private void SaveConfig()
+        {
+            try
+            {
+                var str = JsonConvert.SerializeObject(_vm.Status);
+                File.WriteAllText("config.json", str);
+                _vm.LogText = "保存配置信息成功";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("保存失败：" + ex.StackTrace);
+            }
+        }
+
+        /// <summary>
+        /// 加载配置
+        /// </summary>
+        private void LoadConfig()
+        {
+            try
+            {
+                if (!File.Exists("config.json")) return;
+                var str = File.ReadAllText("config.json");
+                var status = JsonConvert.DeserializeObject<Status>(str);
+                _vm.Status.ChangeInterval = status.ChangeInterval;
+                _vm.Status.ReleaseInterval = status.ReleaseInterval;
+                _vm.Status.AccountFile = status.AccountFile;
+                LoadUsers(_vm.Status.AccountFile);
+                _vm.Status.UseProxy = status.UseProxy;
+                _vm.LogText = "加载配置成功";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.StackTrace);
+            }
         }
 
 
@@ -607,6 +791,7 @@ namespace JpGoods
         /// <param name="file"></param>
         private async void LoadUsers(string file)
         {
+            if (!File.Exists(file)) return;
             var sr = File.OpenText(file);
             var str = await sr.ReadToEndAsync();
             sr.Close();
@@ -655,22 +840,28 @@ namespace JpGoods
                     //添加任务，计算执行时间
                     var count = 0;
                     var execTime = Logger.GetTimeStampMic(); //当前
-                    foreach (var user in _users)
+                    var changeTimeMic = TimeSpan.FromMinutes(_vm.Status.ChangeInterval).TotalMilliseconds;
+                    var changeTime = long.Parse(changeTimeMic + "");
+                    for (int i = 0; i < _users.Count; i++)
                     {
+                        var user = _users[i];
+                        if (i == 0)
+                        {
+                            _lastUsername = user.Username;
+                        }
+
                         foreach (var goods in _goodsList)
                         {
-                            if (goods.IsChecked == false) continue;
+                            if (goods.IsChecked == false && i == 0) continue; //只过滤第一个账号的商品
                             var task = new ReleaseTask {Username = user.Username, GoodsNo = goods.GoodsNo};
                             count++;
                             lock (task)
                             {
-                                execTime += (1 + _vm.Status.ReleaseInterval * 1000);
+                                execTime += 1;
                                 _tasks.Add(execTime, task); //添加任务
                             }
                         }
 
-                        var changeTime =
-                            long.Parse(TimeSpan.FromMinutes(_vm.Status.ChangeInterval).TotalMilliseconds + "");
                         execTime += changeTime;
                     }
 
@@ -716,11 +907,11 @@ namespace JpGoods
         /// </summary>
         private async void _loadList()
         {
+            _goodsList.Clear();
             var iq = from s in App.DbCtx.Goods select s;
             var list = await iq.ToListAsync();
             _vm.LogText = $"获取到数据:{list.Count}";
             //clear
-            _goodsList.Clear();
             list.ForEach(_goodsList.Add);
         }
 
@@ -729,7 +920,7 @@ namespace JpGoods
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void DgGoodsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void DgGoodsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             _vm.Goods = (Goods) DgGoodsList.SelectedItem;
             if (_vm.Goods != null)
@@ -758,7 +949,6 @@ namespace JpGoods
             var imgList = new ObservableCollection<ImgShow>();
             foreach (var file in files)
             {
-                //创建控件，TODO 直接读取到内存
                 var ext = Path.GetExtension(file);
                 if (ext != ".jpg" && ext != ".png")
                 {
@@ -766,7 +956,12 @@ namespace JpGoods
                 }
 
                 var fs = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, file);
-                var bmp = new BitmapImage(new Uri(fs));
+                var bytes = File.ReadAllBytes(fs);
+                var mem = new MemoryStream(bytes);
+                var bmp = new BitmapImage() { };
+                bmp.BeginInit();
+                bmp.StreamSource = mem;
+                bmp.EndInit();
                 var dt = new ImgShow {Image = bmp, Title = file};
                 imgList.Add(dt);
             }
@@ -785,5 +980,104 @@ namespace JpGoods
         }
 
         #endregion
+
+        private void CheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            var cb = sender as CheckBox;
+            if (cb == null)
+            {
+                return;
+            }
+
+            if (cb.IsChecked != null) _vm.Status.IsCheckAll = (bool) cb.IsChecked;
+            var status = _vm.Status.IsCheckAll;
+
+            foreach (var goods in _goodsList)
+            {
+                goods.IsChecked = status;
+            }
+        }
+
+        /// <summary>
+        /// 菜单
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MenuItem_OnClick(object sender, RoutedEventArgs e)
+        {
+            var mi = sender as MenuItem;
+            if (mi == null) return;
+            var select = DgGoodsList.SelectedItem;
+            if (@select == null) return;
+            if (!(@select is Goods goods)) return;
+            if (mi.Name.Equals(MiOpen.Name))
+            {
+                var path = Path.Combine("Goods", goods.GoodsNo + "");
+                Process.Start(path);
+                return;
+            }
+
+            if (!mi.Name.Equals(MiRemove.Name)) return;
+
+
+            Task.Run(async () =>
+            {
+                App.DbCtx.Goods.Remove(goods);
+                await App.DbCtx.SaveChangesAsync();
+                Dispatcher.Invoke(_loadList);
+            });
+        }
+
+        /// <summary>
+        /// 改变后
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CbShippingMethods_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            try
+            {
+                var v = sender as ComboBox;
+                var ship = v.SelectedItem as string;
+                var method =
+                    Int32.Parse(JpConfig.GetCateByTitle(JpConfig.ShippingMethods, ship)?.Value ??
+                                "0");
+                var liao = "0";
+                if (method >= 10)
+                {
+                    //第一个配送料
+                    liao = "1";
+                }
+
+                var s = JpConfig.GetCateByValue(JpConfig.ShippingType, liao).Title;
+                if (_vm.Goods != null)
+                {
+                    _vm.Goods.ShippingLiao = s;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+            }
+        }
+
+        private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            var c = sender as CheckBox;
+            var goods = c.DataContext as Goods;
+            goods.IsChecked = false;
+        }
+
+        private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            var c = sender as CheckBox;
+            var goods = c.DataContext as Goods;
+            goods.IsChecked = true;
+        }
+
+        private void gdView_LoadingRow(object sender, DataGridRowEventArgs e)
+        {
+            e.Row.Header = e.Row.GetIndex() + 1;
+        }
     }
 }

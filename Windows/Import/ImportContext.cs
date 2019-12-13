@@ -17,7 +17,7 @@ namespace JpGoods.Windows.Import
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private string _url = "https://shoppies.jp/user-shop/19745752";
+        private string _url = "https://shoppies.jp/user-shop/22215454";
 
         private bool _isParsing = false;
         private int _goodsCount = 0;

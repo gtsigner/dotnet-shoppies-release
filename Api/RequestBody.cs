@@ -79,6 +79,11 @@ namespace JpGoods.Api
         public static readonly string GetCategoryList = "getCategoryList";
         public static readonly string SetItem2 = "setItem2";
         public static readonly string GetShopItemList = "getShopItemList";
+        public static readonly string CheckSetItem = "checkSetItem";
+        public static readonly string GetAddress = "getAddress";
+        public static readonly string GetAfterItem = "getAfterItem";
+        public static readonly string GetSalesItemList = "getSalesItemList";
+        public static readonly string SetTrackingLog = "setTrackingLog";
     }
 
     public class CItem

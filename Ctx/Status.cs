@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using JpGoods.Annotations;
+using Newtonsoft.Json;
 
 namespace JpGoods.Ctx
 {
@@ -14,7 +15,9 @@ namespace JpGoods.Ctx
         private int _currentUserIndex = 0;
         private int _currentGoodsIndex = 0;
         private bool _isCheckAll = false;
+        private bool _useProxy = false;
 
+        [JsonProperty("is_check_all")]
         public bool IsCheckAll
         {
             get => _isCheckAll;
@@ -25,6 +28,18 @@ namespace JpGoods.Ctx
             }
         }
 
+        [JsonProperty("use_proxy")]
+        public bool UseProxy
+        {
+            get => _useProxy;
+            set
+            {
+                _useProxy = value;
+                OnPropertyChanged(nameof(UseProxy));
+            }
+        }
+
+        [JsonProperty("current_user_index")]
         public int CurrentUserIndex
         {
             get => _currentUserIndex;
@@ -35,6 +50,7 @@ namespace JpGoods.Ctx
             }
         }
 
+        [JsonProperty("current_goods_index")]
         public int CurrentGoodsIndex
         {
             get => _currentGoodsIndex;

@@ -4,7 +4,7 @@
         <OutputType>WinExe</OutputType>
         <UseWPF>true</UseWPF>
         <StartupObject>JpGoods.App</StartupObject>
-        <AssemblyName>shoppies_v1.0</AssemblyName>
+        <AssemblyName>shoppies</AssemblyName>
         <NoWin32Manifest>true</NoWin32Manifest>
         <ApplicationIcon>logo.ico</ApplicationIcon>
         <LangVersion>8</LangVersion>
@@ -37,6 +37,11 @@
         <AutoGen>True</AutoGen>
         <DependentUpon>Resources.resx</DependentUpon>
       </Compile>
+      <Compile Update="Properties\Settings.Designer.cs">
+        <DesignTimeSharedInput>True</DesignTimeSharedInput>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>Settings.settings</DependentUpon>
+      </Compile>
     </ItemGroup>
     <ItemGroup>
       <EmbeddedResource Update="Properties\Resources.resx">
@@ -46,5 +51,11 @@
     </ItemGroup>
     <ItemGroup>
       <Reference Include="System.Net.Http" />
+    </ItemGroup>
+    <ItemGroup>
+      <None Update="Properties\Settings.settings">
+        <Generator>SettingsSingleFileGenerator</Generator>
+        <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+      </None>
     </ItemGroup>
 </Project>

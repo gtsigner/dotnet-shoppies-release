@@ -17,6 +17,46 @@ namespace JpGoods.Ctx
         private Setting _setting = new Setting();
         private ObservableCollection<string> _areas = new ObservableCollection<string>();
         private ObservableCollection<string> _shippingMethods = new ObservableCollection<string>();
+        private ObservableCollection<string> _shippingType = new ObservableCollection<string>();//配送料
+        private ObservableCollection<string> _statusType = new ObservableCollection<string>();//商品状态
+        private ObservableCollection<string> _shippingDates = new ObservableCollection<string>();//配送日期
+
+        /// <summary>
+        /// 配送料变，
+        /// </summary>
+        public ObservableCollection<string> ShippingType
+        {
+            get => _shippingType;
+            set
+            {
+                _shippingType = value;
+                OnPropertyChanged(nameof(ShippingType));
+                //变
+                
+                
+                
+            }
+        }
+
+        public ObservableCollection<string> StatusType
+        {
+            get => _statusType;
+            set
+            {
+                _statusType = value;
+                OnPropertyChanged(nameof(StatusType));
+            }
+        }
+
+        public ObservableCollection<string> ShippingDates
+        {
+            get => _shippingDates;
+            set
+            {
+                _shippingDates = value;
+                OnPropertyChanged(nameof(ShippingDates));
+            }
+        }
 
         public ObservableCollection<string> Areas
         {

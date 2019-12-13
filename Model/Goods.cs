@@ -276,7 +276,6 @@ namespace JpGoods.Model
             }
         }
 
-
         [Column("size")]
         public string Size
         {
